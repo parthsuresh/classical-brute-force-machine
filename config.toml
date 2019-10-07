@@ -1,0 +1,30 @@
+title = "Configuration File"
+
+[common_parameters]
+problem-type = "regression"
+train_val_split = 0.75 # 75% of samples in the training set, 25% in the validation Settings
+target_variable = "variety"
+has_header = true # First row of the dataset is a header with the name of each column
+time_limit = 2 # In hours
+
+[regression.regression_models]
+linear_regression = true
+lightGBM = true
+xgBoost = true
+
+[regression.performance_metrics]
+rmse = true
+mae = true
+r_squared = true
+pearson_correlation = true
+
+[classification.classification_models]
+logistic_regression = true
+lightGBM = true
+xgBoost = true
+
+[classification.performance_metrics]
+accuracy = true
+f1 = true
+precision_recall = true
+roc = true
