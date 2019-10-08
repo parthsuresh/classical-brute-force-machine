@@ -1,3 +1,5 @@
+import os
+
 import argparse
 
 from config_parse import parse_config
@@ -21,5 +23,6 @@ def parse_args():
 
 if __name__ == "__main__":
     args = parse_args()
+    args.output_path = args.output_path if args.output_path else "."
     config = parse_config(args.config_path)
-    data = process_data(args.data_path, config)
+    data = process_data(args.data_path, config, args)
