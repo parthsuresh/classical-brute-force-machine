@@ -94,7 +94,12 @@ def process_data(data_path, config, args):
 
 
     X_train, y_train = convert_categorical(X_train, y_train, config['common_parameters']['problem_type'], config['common_parameters']['categorical_variables'])
+    X_val, y_val = convert_categorical(X_val, y_val, config['common_parameters']['problem_type'], config['common_parameters']['categorical_variables'])
 
     transformed_training_data = pd.concat([X_train,y_train], axis=1)
     training_dataset_numeric_path = args.output_path + '/data/training-dataset-numeric.csv'
     transformed_training_data.to_csv(training_dataset_numeric_path, index=False)
+
+    transformed_validation_data = pd.concat([X_val,y_val], axis=1)
+    validation_dataset_numeric_path = args.output_path + '/data/validation-dataset-numeric.csv'
+    transformed_validation_data.to_csv(validation_dataset_numeric_path, index=False)
