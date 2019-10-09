@@ -103,3 +103,5 @@ def process_data(data_path, config, args):
     transformed_validation_data = pd.concat([X_val,y_val], axis=1)
     validation_dataset_numeric_path = args.output_path + '/data/validation-dataset-numeric.csv'
     transformed_validation_data.to_csv(validation_dataset_numeric_path, index=False)
+
+    return np.array(X_train), np.array(X_val), np.array(y_train), np.array(y_val)
