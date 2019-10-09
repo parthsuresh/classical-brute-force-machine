@@ -1,11 +1,14 @@
 title = "Configuration File"
 
 [common_parameters]
-problem-type = "regression"
+problem_type = "regression"
 train_val_split = 0.75 # 75% of samples in the training set, 25% in the validation Settings
-target_variable = "variety"
+variables = ["State","Border","Value"]
+categorical_variables = ["State","Border"]
+target_variable = "Value"
 has_header = true # First row of the dataset is a header with the name of each column
 time_limit = 2 # In hours
+impute_method = "mean" # Either mean, median, most_frequent
 
 [regression.regression_models]
 linear_regression = true
