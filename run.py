@@ -1,14 +1,11 @@
 import os
 
 import argparse
+import numpy as np
 
 from config_parse import parse_config
 from data.data_preprocessing import process_data
 from models.linear_regression import LinearRegressionModel
-from metrics.regression_metrics import rmse
-from metrics.regression_metrics import mae
-from metrics.regression_metrics import r2
-from metrics.regression_metrics import pearson_correlation
 
 
 def parse_args():
@@ -30,20 +27,24 @@ def parse_args():
 if __name__ == "__main__":
     args = parse_args()
     args.output_path = args.output_path if args.output_path else "."
+    results_path = args.output_path + "/results"
+    model_scores_path = results_path + "/model_scores"
+    if not os.path.exists(results_path):
+        os.mkdir(results_path)
+    if not os.path.exists(model_scores_path):
+        os.mkdir(model_scores_path)
     config = parse_config(args.config_path)
     X_train, X_val, y_train, y_val = process_data(args.data_path, config, args)
+    f = open(model_scores_path+"/metric.txt", "a")
+    f.close()
 
+    # Models
     if config['common_parameters']['problem_type'] == 'regression':
-        if config['regression']['regression_models']['linear_regression']:
-            lr = LinearRegressionModel(X_train, y_train)
-            preds = lr.predict(X_val)
 
-    # Metrics
-    if config['regression']['performance_metrics']['rmse']:
-        print('RMSE : ', rmse(preds, y_val))
-    if config['regression']['performance_metrics']['mae']:
-        print('MAE: ', mae(preds, y_val))
-    if config['regression']['performance_metrics']['r_squared']:
-        print('R2: ', r2(preds, y_val))
-    #if config['regression']['performance_metrics']['pearson_correlation']:
-    #    print('Pearson correlation : ', pearson_correlation(preds, y_val))
+        if config['regression']['regression_models']['linear_regression']:
+            if config['common_parameters']['train']:
+                lr = LinearRegressionModel(X_train, y_train, results_path)
+            if config['common_parameters']['predict']:
+                lr = LinearRegressionModel.predict(X_val, results_path)
+            if config['common_parameters']['record']:
+                score = LinearRegressionModel.record_scores(X_val, y_val, config['regression']['performance_metrics'], results_path)

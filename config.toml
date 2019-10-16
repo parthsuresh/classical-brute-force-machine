@@ -7,6 +7,9 @@ variables = ["State","Border","Value"]
 categorical_variables = ["State","Border"]
 target_variable = "Value"
 has_header = true # First row of the dataset is a header with the name of each column
+train = true
+predict = true
+record = true
 time_limit = 2 # In hours
 impute_method = "mean" # Either mean, median, most_frequent
 
