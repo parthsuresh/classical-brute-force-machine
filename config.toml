@@ -24,6 +24,16 @@ mae = true
 r_squared = true
 pearson_correlation = true
 
+[regression.regression_models.gbm]
+learning_rate=[0.005,0.01]
+n_estimators=[10,15,20]
+min_samples_split=[500,1000]
+min_samples_leaf=[10,20,30,40,50]
+max_depth=[5,8]
+max_features='sqrt'
+subsample=[0.8]
+
+
 [classification.classification_models]
 logistic_regression = true
 lightGBM = true

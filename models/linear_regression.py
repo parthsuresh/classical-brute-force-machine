@@ -2,7 +2,6 @@ import os
 import pickle
 
 from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import ShuffleSplit, GridSearchCV
 import pandas as pd
 
 from metrics.regression_metrics import rmse
@@ -15,9 +14,6 @@ class LinearRegressionModel():
         self.lr_model = LinearRegression().fit(X_train, y_train)
         filename = results_path + '/linear_model.sav'
         pickle.dump(self.lr_model, open(filename, 'wb'))
-
-    def get_params(self):
-        return self.lr_model.get_params()
 
     @classmethod
     def predict(self, X_test, results_path):
