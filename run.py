@@ -64,3 +64,11 @@ if __name__ == "__main__":
                 gbm = GradientBoostingRegressorModel.predict(X_val, results_path)
             if config['common_parameters']['record']:
                 lr = GradientBoostingRegressorModel.record_scores(X_val, y_val, config['regression']['performance_metrics'], results_path)
+
+        if config['regression']['regression_models']['xgBoost']:
+            if config['common_parameters']['train']:
+                gbm = XGBoostRegressionModel(X_train, y_train, X_val, y_val, config['regression']['regression_models']['xgb_params'], results_path)
+            if config['common_parameters']['predict']:
+                gbm = XGBoostRegressionModel.predict(X_val, results_path)
+            if config['common_parameters']['record']:
+                lr = XGBoostRegressionModel.record_scores(X_val, y_val, config['regression']['performance_metrics'], results_path)
