@@ -11,9 +11,11 @@ from metrics.regression_metrics import pearson_correlation
 
 class LinearRegressionModel():
     def __init__(self, X_train, y_train, results_path):
+        print("Training Linear Regression Model....")
         self.lr_model = LinearRegression().fit(X_train, y_train)
         filename = results_path + '/linear_model.sav'
         pickle.dump(self.lr_model, open(filename, 'wb'))
+        print("Training Completed.")
 
     @classmethod
     def predict(self, X_test, results_path):
@@ -24,8 +26,6 @@ class LinearRegressionModel():
     @classmethod
     def record_scores(self, X_test, y_test, metrics, results_path):
         models_scores_path = results_path + '/model_scores/'
-        if not os.path.exists(models_scores_path):
-            os.mkdir(models_scores_path)
         preds = self.predict(X_test, results_path)
         f = open(models_scores_path+"metric.txt", "a")
         f.write("Linear Regression\t")
@@ -40,6 +40,6 @@ class LinearRegressionModel():
             f.write("R^2 : " + str(rsq) + "\t")
         if metrics['pearson_correlation']:
             pcorr = pearson_correlation(preds, y_test)
-            f.write("Pearson Correlation : " + str(pcorr[0][0]) + "\t")
+            f.write("Pearson Correlation : " + str(pcorr[0]) + "\t")
         f.write("\n")
         f.close()

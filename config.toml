@@ -1,46 +1,46 @@
 title = "Configuration File"
 
 [common_parameters]
-problem_type = "regression"
-train_val_split = 0.75 # 75% of samples in the training set, 25% in the validation Settings
-variables = ["State","Border","Value"]
-categorical_variables = ["State","Border"]
-target_variable = "Value"
-has_header = true # First row of the dataset is a header with the name of each column
-train = true
-predict = true
-record = true
-time_limit = 2 # In hours
-impute_method = "mean" # Either mean, median, most_frequent
+  problem_type = "regression"
+  train_val_split = 0.75 # 75% of samples in the training set, 25% in the validation Settings
+  variables = ["State","Border","Value"]
+  categorical_variables = ["State","Border"]
+  target_variable = "Value"
+  has_header = true # First row of the dataset is a header with the name of each column
+  train = true
+  predict = true
+  record = true
+  time_limit = 2 # In hours
+  impute_method = "mean" # Either mean, median, most_frequent
 
 [regression.regression_models]
-linear_regression = true
-lightGBM = true
-xgBoost = true
+  linear_regression = true
+  gbm = true
+  xgBoost = true
 
 [regression.performance_metrics]
-rmse = true
-mae = true
-r_squared = true
-pearson_correlation = true
+  rmse = true
+  mae = true
+  r_squared = true
+  pearson_correlation = true
 
-[regression.regression_models.gbm]
-learning_rate=[0.005,0.01]
-n_estimators=[10,15,20]
-min_samples_split=[500,1000]
-min_samples_leaf=[10,20,30,40,50]
-max_depth=[5,8]
-max_features='sqrt'
-subsample=[0.8]
-
+[regression.regression_models.gbm_params]
+  learning_rate=[0.005,0.01]
+  n_estimators=[10,15,20]
+  min_samples_split=[500,1000]
+  min_samples_leaf=[10,20,30,40,50]
+  max_depth=[5,8]
+  max_features='sqrt'
+  subsample=[0.8]
+  model_selection_metric="mae"
 
 [classification.classification_models]
-logistic_regression = true
-lightGBM = true
-xgBoost = true
+  logistic_regression = true
+  lightGBM = true
+  xgBoost = true
 
 [classification.performance_metrics]
-accuracy = true
-f1 = true
-precision_recall = true
-roc = true
+  accuracy = true
+  f1 = true
+  precision_recall = true
+  roc = true

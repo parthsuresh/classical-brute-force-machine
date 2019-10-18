@@ -80,6 +80,7 @@ def train_val_split(features, labels, split_fraction=0.75):
 
 
 def process_data(data_path, config, args):
+    print('Processing Data...')
     data = data_loader(data_path, config['common_parameters']['has_header'], config['common_parameters']['variables'])
 
     X, y = split_X_y(data, config['common_parameters']['target_variable'])
@@ -97,11 +98,12 @@ def process_data(data_path, config, args):
     X_val, y_val = convert_categorical(X_val, y_val, config['common_parameters']['problem_type'], config['common_parameters']['categorical_variables'])
 
     transformed_training_data = pd.concat([X_train,y_train], axis=1)
-    training_dataset_numeric_path = args.output_path + '/data/training-dataset-numeric.csv'
+    training_dataset_numeric_path = args.output_path + '/results/data/training-dataset-numeric.csv'
     transformed_training_data.to_csv(training_dataset_numeric_path, index=False)
 
     transformed_validation_data = pd.concat([X_val,y_val], axis=1)
-    validation_dataset_numeric_path = args.output_path + '/data/validation-dataset-numeric.csv'
+    validation_dataset_numeric_path = args.output_path + '/results/data/validation-dataset-numeric.csv'
     transformed_validation_data.to_csv(validation_dataset_numeric_path, index=False)
 
-    return np.array(X_train), np.array(X_val), np.array(y_train), np.array(y_val)
+    print('Processing Completed.')
+    return np.array(X_train), np.array(X_val), np.squeeze(np.array(y_train)), np.squeeze(np.array(y_val))
