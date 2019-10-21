@@ -12,9 +12,9 @@ from metrics.regression_metrics import pearson_correlation
 class LinearRegressionModel():
     def __init__(self, X_train, y_train, results_path):
         print("Training Linear Regression Model....")
-        self.lr_model = LinearRegression().fit(X_train, y_train)
+        lr_model = LinearRegression().fit(X_train, y_train)
         filename = results_path + '/linear_model.sav'
-        pickle.dump(self.lr_model, open(filename, 'wb'))
+        pickle.dump(lr_model, open(filename, 'wb'))
         print("Training Completed.")
 
     @classmethod

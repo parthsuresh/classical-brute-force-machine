@@ -1,6 +1,5 @@
 import os
 import pickle
-import time
 
 import xgboost as xgb
 import pandas as pd
@@ -39,15 +38,14 @@ class XGBoostRegressionModel():
                             for subsample in subsample_list:
                                 for alpha in alpha_list:
                                     for lamda in lambda_list:
-                                        xgb_estimator = xgb.XGBregressor(objective='reg:linear',                                                                          learning_rate=learning_rate,
+                                        xgb_estimator = xgb.XGBRegressor(objective='reg:squarederror',                                                                          learning_rate=learning_rate,
                                                                         n_estimators=n_estimators,
                                                                         colsample_bytree=colsample_bytree,
                                                                         gamma=gamma,
                                                                         alpha=alpha,
-                                                                        lambda=lamda,
+                                                                        reg_lambda=lamda,
                                                                         max_depth=max_depth,
-                                                                        subsample=subsample,
-                                                                        max_features=max_features)
+                                                                        subsample=subsample)
                                         xgb_estimator.fit(X_train, y_train)
                                         preds = xgb_estimator.predict(X_val)
 
@@ -65,7 +63,6 @@ class XGBoostRegressionModel():
                                             best_pcorr, best_model = (pcorr, xgb_estimator) if pcorr > best_pcorr else (best_pcorr, best_model)
                                         else:
                                             print("Wrong model selection metric entered!")
-
 
         self.xgb_model = best_model
         filename = results_path + '/xgb_model.sav'

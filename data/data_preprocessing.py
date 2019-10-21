@@ -93,7 +93,6 @@ def process_data(data_path, config, args):
                     config['common_parameters']['categorical_variables'],
                     config['common_parameters']['target_variable'])
 
-
     X_train, y_train = convert_categorical(X_train, y_train, config['common_parameters']['problem_type'], config['common_parameters']['categorical_variables'])
     X_val, y_val = convert_categorical(X_val, y_val, config['common_parameters']['problem_type'], config['common_parameters']['categorical_variables'])
 

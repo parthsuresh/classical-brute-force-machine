@@ -8,6 +8,7 @@ from config_parse import parse_config
 from data.data_preprocessing import process_data
 from models.linear_regression import LinearRegressionModel
 from models.gbm_regression import GradientBoostingRegressorModel
+from models.xgboost_regression import XGBoostRegressionModel
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
@@ -67,8 +68,8 @@ if __name__ == "__main__":
 
         if config['regression']['regression_models']['xgBoost']:
             if config['common_parameters']['train']:
-                gbm = XGBoostRegressionModel(X_train, y_train, X_val, y_val, config['regression']['regression_models']['xgb_params'], results_path)
+                xgb = XGBoostRegressionModel(X_train, y_train, X_val, y_val, config['regression']['regression_models']['xgb_params'], results_path)
             if config['common_parameters']['predict']:
-                gbm = XGBoostRegressionModel.predict(X_val, results_path)
+                xgb = XGBoostRegressionModel.predict(X_val, results_path)
             if config['common_parameters']['record']:
                 lr = XGBoostRegressionModel.record_scores(X_val, y_val, config['regression']['performance_metrics'], results_path)
