@@ -1,20 +1,20 @@
 title = "Configuration File"
 
 [common_parameters]
-problem_type = "regression"
+problem_type = "classification"
 train_val_split = 0.75 # 75% of samples in the training set, 25% in the validation Settings
-variables = ["Avg. Area Income", "Avg. Area House Age", "Avg. Area Number of Rooms", "Avg. Area Number of Bedrooms", "Area Population", "Price"]
+variables = ["sepal.length", "sepal.width", "petal.length", "petal.width", "variety"]
 categorical_variables = []
-target_variable = "Price"
+target_variable = "variety"
 has_header = true # First row of the dataset is a header with the name of each column
 train = true
-predict = true
-record = true
+predict_new = true
+get_results = true
 time_limit = 2 # In hours
 impute_method = "mean" # Either mean, median, most_frequent
 
 [regression.regression_models]
-linear_regression = true
+linear_regression = false
 gbm = true
 xgBoost = true
 
@@ -47,11 +47,27 @@ model_selection_metric="mae"
 
 [classification.classification_models]
 logistic_regression = true
-lightGBM = true
-xgBoost = true
+extra_trees = true
+random_forest = true
 
 [classification.performance_metrics]
 accuracy = true
-f1 = true
-precision_recall = true
-roc = true
+f1 = false
+auc = false #performance measure for binary classification only, leave false otherwise
+roc = false #performance measure for binary classification only, leave false otherwise
+
+[classification.classification_models.ext_params]
+n_estimators=[10,15,20]
+min_samples_split=[500,1000]
+min_samples_leaf=[10,20,30,40,50]
+max_depth=[5,8]
+max_features='sqrt'
+model_selection_metric="accuracy"
+
+[classification.classification_models.rf_params]
+n_estimators=[10,15,20]
+min_samples_split=[500,1000]
+min_samples_leaf=[10,20,30,40,50]
+max_depth=[5,8]
+max_features='sqrt'
+model_selection_metric="accuracy"

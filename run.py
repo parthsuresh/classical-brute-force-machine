@@ -9,6 +9,9 @@ from data.data_preprocessing import process_data
 from models.linear_regression import LinearRegressionModel
 from models.gbm_regression import GradientBoostingRegressorModel
 from models.xgboost_regression import XGBoostRegressionModel
+from models.lr_classification import LogisticRegressionModel
+from models.extra_trees import ExtraTreesClassificationModel
+from models.random_forest_classifier import RandomForestClassificationModel
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
@@ -53,23 +56,52 @@ if __name__ == "__main__":
         if config['regression']['regression_models']['linear_regression']:
             if config['common_parameters']['train']:
                 lr = LinearRegressionModel(X_train, y_train, results_path)
-            if config['common_parameters']['predict']:
+            if config['common_parameters']['predict_new']:
                 lr = LinearRegressionModel.predict(X_val, results_path)
-            if config['common_parameters']['record']:
-                score = LinearRegressionModel.record_scores(X_val, y_val, config['regression']['performance_metrics'], results_path)
+            if config['common_parameters']['get_results']:
+                lr = LinearRegressionModel.record_scores(X_val, y_val, config['regression']['performance_metrics'], results_path)
 
         if config['regression']['regression_models']['gbm']:
             if config['common_parameters']['train']:
                 gbm = GradientBoostingRegressorModel(X_train, y_train, X_val, y_val, config['regression']['regression_models']['gbm_params'], results_path)
-            if config['common_parameters']['predict']:
+            if config['common_parameters']['predict_new']:
                 gbm = GradientBoostingRegressorModel.predict(X_val, results_path)
-            if config['common_parameters']['record']:
-                lr = GradientBoostingRegressorModel.record_scores(X_val, y_val, config['regression']['performance_metrics'], results_path)
+            if config['common_parameters']['get_results']:
+                gbm = GradientBoostingRegressorModel.record_scores(X_val, y_val, config['regression']['performance_metrics'], results_path)
 
         if config['regression']['regression_models']['xgBoost']:
             if config['common_parameters']['train']:
                 xgb = XGBoostRegressionModel(X_train, y_train, X_val, y_val, config['regression']['regression_models']['xgb_params'], results_path)
-            if config['common_parameters']['predict']:
+            if config['common_parameters']['predict_new']:
                 xgb = XGBoostRegressionModel.predict(X_val, results_path)
-            if config['common_parameters']['record']:
-                lr = XGBoostRegressionModel.record_scores(X_val, y_val, config['regression']['performance_metrics'], results_path)
+            if config['common_parameters']['get_results']:
+                xgb = XGBoostRegressionModel.record_scores(X_val, y_val, config['regression']['performance_metrics'], results_path)
+
+    elif config['common_parameters']['problem_type'] == 'classification':
+
+        if config['classification']['classification_models']['logistic_regression']:
+            if config['common_parameters']['train']:
+                lr = LogisticRegressionModel(X_train, y_train, results_path)
+            if config['common_parameters']['predict_new']:
+                lr = LogisticRegressionModel.predict(X_val, results_path)
+            if config['common_parameters']['get_results']:
+                lr = LogisticRegressionModel.record_scores(X_val, y_val, config['classification']['performance_metrics'], results_path)
+
+        if config['classification']['classification_models']['extra_trees']:
+            if config['common_parameters']['train']:
+                ext = ExtraTreesClassificationModel(X_train, y_train, X_val, y_val, config['classification']['classification_models']['ext_params'], results_path)
+            if config['common_parameters']['predict_new']:
+                ext = ExtraTreesClassificationModel.predict(X_val, results_path)
+            if config['common_parameters']['get_results']:
+                ext = ExtraTreesClassificationModel.record_scores(X_val, y_val, config['classification']['performance_metrics'], results_path)
+
+        if config['classification']['classification_models']['random_forest']:
+            if config['common_parameters']['train']:
+                rf = RandomForestClassificationModel(X_train, y_train, X_val, y_val, config['classification']['classification_models']['rf_params'], results_path)
+            if config['common_parameters']['predict_new']:
+                rf = RandomForestClassificationModel.predict(X_val, results_path)
+            if config['common_parameters']['get_results']:
+                rf = RandomForestClassificationModel.record_scores(X_val, y_val, config['classification']['performance_metrics'], results_path)
+
+    else:
+        raise Exception("Incorrect Problem Type Entered")

@@ -58,7 +58,7 @@ class XGBoostRegressionModel():
                                         elif model_selection_metric == "r_squared":
                                             rsq = r2(preds, y_val)
                                             best_rsq, best_model = (rsq, xgb_estimator) if rsq > best_rsq else (best_rsq, best_model)
-                                        elif model_selection_metric == "r_squared":
+                                        elif model_selection_metric == "pearson_correlation":
                                             pcorr = pearson_correlation(preds, y_val)
                                             best_pcorr, best_model = (pcorr, xgb_estimator) if pcorr > best_pcorr else (best_pcorr, best_model)
                                         else:
