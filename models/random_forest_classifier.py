@@ -95,30 +95,31 @@ class RandomForestClassificationModel():
             row = n + 1
             worksheet.write(row, 0, "Random Forest Model " + str(n)+ "\t")
             f.write("Random Forest Classification\t")
+            column = 0
             if metrics['f1']:
+                column += 1
                 if n == 0:
-                    column += 1
                     worksheet.write(0, column, "F1")
                 f1_sc = f1(y_test, preds)
                 f.write("F1 score : " + str(f1) + "\t")
                 worksheet.write(row, column, f1_sc)
             if metrics['accuracy']:
+                column += 1
                 if n == 0:
-                    column += 1
                     worksheet.write(0, column, "Accuracy")
                 acc = accuracy(y_test, preds)
                 f.write("Accuracy : " + str(acc) + "\t")
                 worksheet.write(row, column, acc)
             if metrics['roc']:
+                column += 1
                 if n == 0:
-                    column += 1
                     worksheet.write(0, column, "ROC")
                 roc_curve = roc(y_test, preds)
                 f.write("ROC : " + str(roc_curve) + "\t")
                 worksheet.write(row, column, roc_curve)
             if metrics['auc']:
+                column += 1
                 if n == 0:
-                    column += 1
                     worksheet.write(0, column, "AUC")
                 auroc = auc(y_test, preds)
                 f.write("Area under ROC : " + str(auroc) + "\t")

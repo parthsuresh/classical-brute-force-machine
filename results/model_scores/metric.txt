@@ -1,15 +1,10 @@
-Logistic Regression Model 0	Accuracy : 0.6292993630573248	
-Logistic Regression Model 1	Accuracy : 0.6292993630573248	
-Logistic Regression Model 2	Accuracy : 0.6292993630573248	
-Logistic Regression Model 3	Accuracy : 0.6292993630573248	
-Logistic Regression Model 4	Accuracy : 0.6292993630573248	
-Extra Trees Classifier 0 	Accuracy : 0.6471337579617834	
-Extra Trees Classifier 1 	Accuracy : 0.6445859872611465	
-Extra Trees Classifier 2 	Accuracy : 0.6420382165605095	
-Extra Trees Classifier 3 	Accuracy : 0.6471337579617834	
-Extra Trees Classifier 4 	Accuracy : 0.6522292993630573	
-Random Forest Classification	Accuracy : 0.6522292993630573	
-Random Forest Classification	Accuracy : 0.6458598726114649	
-Random Forest Classification	Accuracy : 0.6445859872611465	
-Random Forest Classification	Accuracy : 0.6445859872611465	
-Random Forest Classification	Accuracy : 0.643312101910828	
+Logistic Regression Model 0	F1 score : 0.716342082980525	Accuracy : 0.5732484076433121	Area under ROC : 0.47788732394366196	
+Logistic Regression Model 1	F1 score : 0.716342082980525	Accuracy : 0.5732484076433121	Area under ROC : 0.47788732394366196	
+Logistic Regression Model 2	F1 score : 0.716342082980525	Accuracy : 0.5732484076433121	Area under ROC : 0.47788732394366196	
+Logistic Regression Model 3	F1 score : 0.716342082980525	Accuracy : 0.5732484076433121	Area under ROC : 0.47788732394366196	
+Logistic Regression Model 4	F1 score : 0.716342082980525	Accuracy : 0.5732484076433121	Area under ROC : 0.47788732394366196	
+Extra Trees Classifier 0 	F1 score : <function f1 at 0x7fbe2df5cd40>	Accuracy : 0.6114649681528662	Area under ROC : 0.610657618672961	
+Extra Trees Classifier 1 	F1 score : <function f1 at 0x7fbe2df5cd40>	Accuracy : 0.6127388535031847	Area under ROC : 0.6157149266166764	
+Extra Trees Classifier 2 	F1 score : <function f1 at 0x7fbe2df5cd40>	Accuracy : 0.6140127388535032	Area under ROC : 0.6178678678678678	
+Extra Trees Classifier 3 	F1 score : <function f1 at 0x7fbe2df5cd40>	Accuracy : 0.6127388535031847	Area under ROC : 0.6185402684563759	
+Extra Trees Classifier 4 	F1 score : <function f1 at 0x7fbe2df5cd40>	Accuracy : 0.6152866242038216	Area under ROC : 0.6397418780596351	
