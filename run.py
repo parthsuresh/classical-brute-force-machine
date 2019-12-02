@@ -81,27 +81,27 @@ if __name__ == "__main__":
 
         if config['classification']['classification_models']['logistic_regression']:
             if config['common_parameters']['train']:
-                lr = LogisticRegressionModel(X_train, y_train, results_path)
+                lr = LogisticRegressionModel(X_train, y_train, config['common_parameters']['n_runs'], results_path)
             if config['common_parameters']['predict_new']:
                 lr = LogisticRegressionModel.predict(X_val, results_path)
             if config['common_parameters']['get_results']:
-                lr = LogisticRegressionModel.record_scores(X_val, y_val, config['classification']['performance_metrics'], results_path)
+                lr = LogisticRegressionModel.record_scores(X_val, y_val, config['common_parameters']['n_runs'], config['classification']['performance_metrics'], results_path)
 
         if config['classification']['classification_models']['extra_trees']:
             if config['common_parameters']['train']:
-                ext = ExtraTreesClassificationModel(X_train, y_train, X_val, y_val, config['classification']['classification_models']['ext_params'], results_path)
+                ext = ExtraTreesClassificationModel(X_train, y_train, X_val, y_val, config['common_parameters']['n_runs'], config['classification']['classification_models']['ext_params'], results_path)
             if config['common_parameters']['predict_new']:
                 ext = ExtraTreesClassificationModel.predict(X_val, results_path)
             if config['common_parameters']['get_results']:
-                ext = ExtraTreesClassificationModel.record_scores(X_val, y_val, config['classification']['performance_metrics'], results_path)
+                ext = ExtraTreesClassificationModel.record_scores(X_val, y_val, config['common_parameters']['n_runs'], config['classification']['performance_metrics'], results_path)
 
         if config['classification']['classification_models']['random_forest']:
             if config['common_parameters']['train']:
-                rf = RandomForestClassificationModel(X_train, y_train, X_val, y_val, config['classification']['classification_models']['rf_params'], results_path)
+                rf = RandomForestClassificationModel(X_train, y_train, X_val, y_val, config['common_parameters']['n_runs'], config['classification']['classification_models']['rf_params'], results_path)
             if config['common_parameters']['predict_new']:
                 rf = RandomForestClassificationModel.predict(X_val, results_path)
             if config['common_parameters']['get_results']:
-                rf = RandomForestClassificationModel.record_scores(X_val, y_val, config['classification']['performance_metrics'], results_path)
+                rf = RandomForestClassificationModel.record_scores(X_val, y_val, config['common_parameters']['n_runs'], config['classification']['performance_metrics'], results_path)
 
     else:
         raise Exception("Incorrect Problem Type Entered")
