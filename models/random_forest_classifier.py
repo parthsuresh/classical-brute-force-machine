@@ -4,6 +4,8 @@ import pickle
 from sklearn.ensemble import RandomForestClassifier
 import pandas as pd
 import xlsxwriter
+import matplotlib.pyplot as plt
+import numpy as np
 
 from metrics.classification_metrics import f1
 from metrics.classification_metrics import roc
@@ -14,6 +16,7 @@ class RandomForestClassificationModel():
     def __init__(self, X_train, y_train, X_val, y_val, n_runs, ext_params, results_path):
         print("Training Random Forest Classification Model...")
         os.mkdir(results_path+'/random_forest_models')
+
         # Get params
         n_estimators_list = ext_params['n_estimators']
         min_samples_split_list = ext_params['min_samples_split']
@@ -78,8 +81,28 @@ class RandomForestClassificationModel():
         loaded_model = pickle.load(open(filename,'rb'))
         return loaded_model.predict(X_test)
 
+    def feature_importances(results_path, feature_names):
+        plots_path = results_path + '/plots/'
+        filename = results_path + '/random_forest_models/rf_model.sav'
+        loaded_model = pickle.load(open(filename,'rb'))
+        features, importances =  list(feature_names), loaded_model.feature_importances_
+        indices = np.argsort(importances)
+        plt.title('Feature Importances')
+        plt.barh(range(len(indices)), importances[indices], color='b', align='center')
+        plt.yticks(range(len(indices)), [features[i] for i in indices])
+        plt.xlabel('Relative Importance')
+        plt.savefig(plots_path + 'random_forest_feature_importances.png')
+
+        f = open(plots_path + "feature_importances.txt", "w")
+        f.write("Feature Importances\n")
+        for i in reversed(indices):
+            f.write(str(features[i]) + " : "  + str(importances[i]) + "\n")
+        f.close()
+
+
+
     @classmethod
-    def record_scores(self, X_test, y_test, n_runs, metrics, results_path):
+    def record_scores(self, X_test, y_test, n_runs, metrics, feature_names, results_path):
         models_scores_path = results_path + '/model_scores/'
 
         workbook = xlsxwriter.Workbook(models_scores_path+'random_forest_results.xlsx')
@@ -126,5 +149,7 @@ class RandomForestClassificationModel():
                 worksheet.write(row, column, auroc)
             f.write("\n")
         f.close()
+
+        self.feature_importances(results_path, feature_names)
 
         workbook.close()

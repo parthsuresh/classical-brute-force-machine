@@ -104,5 +104,7 @@ def process_data(data_path, config, args):
     validation_dataset_numeric_path = args.output_path + '/results/data/validation-dataset-numeric.csv'
     transformed_validation_data.to_csv(validation_dataset_numeric_path, index=False)
 
+    feature_names = X_train.columns
+
     print('Processing Completed.')
-    return np.array(X_train), np.array(X_val), np.squeeze(np.array(y_train)), np.squeeze(np.array(y_val))
+    return np.array(X_train), np.array(X_val), np.squeeze(np.array(y_train)), np.squeeze(np.array(y_val)), feature_names

@@ -3,6 +3,7 @@ import warnings
 
 import argparse
 import numpy as np
+import pandas as pd
 
 from config_parse import parse_config
 from data.data_preprocessing import process_data
@@ -37,6 +38,7 @@ if __name__ == "__main__":
     results_path = args.output_path + "/results"
     model_scores_path = results_path + "/model_scores"
     processed_data_path = results_path + "/data"
+    plots_path = results_path + "/plots"
 
     if not os.path.exists(results_path):
         os.mkdir(results_path)
@@ -44,9 +46,11 @@ if __name__ == "__main__":
         os.mkdir(model_scores_path)
     if not os.path.exists(processed_data_path):
         os.mkdir(processed_data_path)
+    if not os.path.exists(plots_path):
+        os.mkdir(plots_path)
 
     config = parse_config(args.config_path)
-    X_train, X_val, y_train, y_val = process_data(args.data_path, config, args)
+    X_train, X_val, y_train, y_val, feature_names = process_data(args.data_path, config, args)
     f = open(model_scores_path+"/metric.txt", "a")
     f.close()
 
@@ -101,7 +105,6 @@ if __name__ == "__main__":
             if config['common_parameters']['predict_new']:
                 rf = RandomForestClassificationModel.predict(X_val, results_path)
             if config['common_parameters']['get_results']:
-                rf = RandomForestClassificationModel.record_scores(X_val, y_val, config['common_parameters']['n_runs'], config['classification']['performance_metrics'], results_path)
-
+                rf = RandomForestClassificationModel.record_scores(X_val, y_val, config['common_parameters']['n_runs'], config['classification']['performance_metrics'], feature_names, results_path)
     else:
         raise Exception("Incorrect Problem Type Entered")

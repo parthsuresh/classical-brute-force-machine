@@ -47,14 +47,14 @@ subsample=[0.8]
 model_selection_metric="mae"
 
 [classification.classification_models]
-logistic_regression = true
-extra_trees = true
+logistic_regression = false
+extra_trees = false
 random_forest = true
 
 [classification.performance_metrics]
 accuracy = true
-f1 = true
-auc = true #performance measure for binary classification only, leave false otherwise
+f1 = false
+auc = false #performance measure for binary classification only, leave false otherwise
 roc = false #performance measure for binary classification only, leave false otherwise
 
 [classification.classification_models.ext_params]
