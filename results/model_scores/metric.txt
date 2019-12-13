@@ -1,5 +1,0 @@
-Random Forest Classification	Accuracy : 0.6458598726114649	
-Random Forest Classification	Accuracy : 0.6471337579617834	
-Random Forest Classification	Accuracy : 0.6547770700636942	
-Random Forest Classification	Accuracy : 0.6522292993630573	
-Random Forest Classification	Accuracy : 0.6484076433121019	
