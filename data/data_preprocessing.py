@@ -29,20 +29,21 @@ def impute_data(X_train, X_val, impute_method, variables, categorical_variables,
             raise Exception("Invalid Imputation Method in Config File")
 
         imp.fit(numeric_X_train)
-        numeric_X_train_imputed = pd.DataFrame(imp.transform(numeric_X_train), columns=numeric_X_train.columns)
+        numeric_X_train_imputed = pd.DataFrame(imp.transform(numeric_X_train), columns = numeric_X_train.columns)
         numeric_X_val_imputed = pd.DataFrame(imp.transform(numeric_X_val), columns = numeric_X_val.columns)
+
 
     if len(categorical_variables) >= 1:
         categorical_X_train = X_train[categorical_variables]
         categorical_X_val = X_val[categorical_variables]
         cat_imp = SimpleImputer(strategy='most_frequent')
         cat_imp.fit(categorical_X_train)
-        categorical_X_train_imputed = pd.DataFrame(cat_imp.transform(categorical_X_train), columns=categorical_X_train.columns)
-        categorical_X_val_imputed = pd.DataFrame(cat_imp.transform(categorical_X_val), columns=categorical_X_val.columns)
+        categorical_X_train_imputed = pd.DataFrame(cat_imp.transform(categorical_X_train), columns = categorical_X_train.columns)
+        categorical_X_val_imputed = pd.DataFrame(cat_imp.transform(categorical_X_val), columns = categorical_X_val.columns)
 
     if len(categorical_variables) >= 1 and len(numerical_variables) >= 1:
-        X_train_imputed = pd.concat(numeric_X_train_imputed, categorical_X_train_imputed)
-        X_val_imputed = pd.concat(numeric_X_val_imputed, categorical_X_val_imputed)
+        X_train_imputed = pd.concat([numeric_X_train_imputed,categorical_X_train_imputed],axis=1)
+        X_val_imputed = pd.concat([numeric_X_val_imputed,categorical_X_val_imputed],axis=1)
     elif len(categorical_variables) >= 1:
         X_train_imputed = categorical_X_train_imputed
         X_val_imputed = categorical_X_val_imputed
@@ -59,7 +60,7 @@ def split_X_y(data, target_variable):
 
 
 def convert_categorical(X, y, problem_type, cols_to_transform=[]):
-    if cols_to_transform:
+    if len(cols_to_transform):
         encoded_X = pd.get_dummies(X, columns = cols_to_transform)
     else:
         encoded_X = pd.DataFrame(X)
@@ -82,10 +83,11 @@ def train_val_split(features, labels, split_fraction=0.75):
 def process_data(data_path, config, args):
     print('Processing Data...')
     data = data_loader(data_path, config['common_parameters']['has_header'], config['common_parameters']['variables'])
-
     X, y = split_X_y(data, config['common_parameters']['target_variable'])
-
     X_train, X_val, y_train, y_val = train_val_split(X, y, config['common_parameters']['train_val_split'])
+
+    y_train.reset_index(drop=True, inplace=True)
+    y_val.reset_index(drop=True, inplace=True)
 
     X_train, X_val = impute_data(X_train, X_val,
                     config['common_parameters']['impute_method'],
@@ -93,18 +95,19 @@ def process_data(data_path, config, args):
                     config['common_parameters']['categorical_variables'],
                     config['common_parameters']['target_variable'])
 
-    X_train, y_train = convert_categorical(X_train, y_train, config['common_parameters']['problem_type'], config['common_parameters']['categorical_variables'])
-    X_val, y_val = convert_categorical(X_val, y_val, config['common_parameters']['problem_type'], config['common_parameters']['categorical_variables'])
 
-    transformed_training_data = pd.concat([X_train,y_train], axis=1)
+    X_train_conv, y_train_conv = convert_categorical(X_train, y_train, config['common_parameters']['problem_type'], config['common_parameters']['categorical_variables'])
+    X_val_conv, y_val_conv = convert_categorical(X_val, y_val, config['common_parameters']['problem_type'], config['common_parameters']['categorical_variables'])
+
+    transformed_training_data = pd.concat([X_train_conv, y_train_conv], axis=1)
     training_dataset_numeric_path = args.output_path + '/results/data/training-dataset-numeric.csv'
     transformed_training_data.to_csv(training_dataset_numeric_path, index=False)
 
-    transformed_validation_data = pd.concat([X_val,y_val], axis=1)
+    transformed_validation_data = pd.concat([X_val_conv,y_val_conv], axis=1)
     validation_dataset_numeric_path = args.output_path + '/results/data/validation-dataset-numeric.csv'
     transformed_validation_data.to_csv(validation_dataset_numeric_path, index=False)
 
     feature_names = X_train.columns
 
     print('Processing Completed.')
-    return np.array(X_train), np.array(X_val), np.squeeze(np.array(y_train)), np.squeeze(np.array(y_val)), feature_names
+    return np.array(X_train_conv), np.array(X_val_conv), np.squeeze(np.array(y_train_conv)), np.squeeze(np.array(y_val_conv)), feature_names

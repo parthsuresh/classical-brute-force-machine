@@ -34,7 +34,7 @@ class LogisticRegressionModel():
     @classmethod
     def record_scores(self, X_test, y_test, n_runs, metrics, results_path):
         models_scores_path = results_path + '/model_scores/'
-        
+
         best_f1 = 0
         best_roc = 0
         best_auc = 0
@@ -68,7 +68,7 @@ class LogisticRegressionModel():
                 f.write("F1 score : " + str(f1_sc) + "\t")
                 worksheet.write(row, column, f1_sc)
             if metrics['accuracy']:
-                column += 17
+                column += 1
                 if n == 0:
                     worksheet.write(0, column, "Accuracy")
                 acc = accuracy(y_test, preds)

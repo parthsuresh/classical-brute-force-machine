@@ -59,11 +59,11 @@ if __name__ == "__main__":
 
         if config['regression']['regression_models']['linear_regression']:
             if config['common_parameters']['train']:
-                lr = LinearRegressionModel(X_train, y_train, results_path)
+                lr = LinearRegressionModel(X_train, y_train, config['common_parameters']['n_runs'], results_path)
             if config['common_parameters']['predict_new']:
                 lr = LinearRegressionModel.predict(X_val, results_path)
             if config['common_parameters']['get_results']:
-                lr = LinearRegressionModel.record_scores(X_val, y_val, config['regression']['performance_metrics'], results_path)
+                lr = LinearRegressionModel.record_scores(X_val, y_val, config['regression']['performance_metrics'], config['common_parameters']['n_runs'], results_path)
 
         if config['regression']['regression_models']['gbm']:
             if config['common_parameters']['train']:
