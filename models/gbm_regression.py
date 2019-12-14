@@ -11,8 +11,9 @@ from metrics.regression_metrics import pearson_correlation
 
 
 class GradientBoostingRegressorModel():
-    def __init__(self, X_train, y_train, X_val, y_val, gbm_params, results_path):
+    def __init__(self, X_train, y_train, X_val, y_val, gbm_params, n_runs, results_path):
         print("Training GBM Model...")
+        os.mkdir(results_path+'/gbm_models')
         # Get params
         learning_rate_list = gbm_params['learning_rate']
         n_estimators_list = gbm_params['n_estimators']
@@ -59,45 +60,102 @@ class GradientBoostingRegressorModel():
                                         best_me, best_model =  (me, gbm_estimator)  if me < best_me else (best_me, best_model)
                                     elif model_selection_metric == "rmse":
                                         rms = rmse(preds, y_val)
+                                        best_rms_run, best_model_run = (rms, gbm_estimator) if rms < best_rms_run else (best_rms_run, best_model_run)
                                         best_rms, best_model = (rms, gbm_estimator) if rms < best_rms else (best_rms, best_model)
                                     elif model_selection_metric == "r_squared":
                                         rsq = r2(preds, y_val)
+                                        best_rsq_run, best_model_run = (rsq, gbm_estimator) if rsq > best_rsq_run else (best_rsq_run, best_model_run)
                                         best_rsq, best_model = (rsq, gbm_estimator) if rsq > best_rsq else (best_rsq, best_model)
                                     elif model_selection_metric == "pearson_correlation":
-                                        pcorr = pearson_correlation(preds, y_val)
+                                        pcorr, _ = pearson_correlation(preds, y_val)
+                                        best_pcorr_run, best_model_run = (pcorr, gbm_estimator) if pcorr > best_pcorr_run else (best_pcorr_run, best_model_run)
                                         best_pcorr, best_model = (pcorr, gbm_estimator) if pcorr > best_pcorr else (best_pcorr, best_model)
                                     else:
                                         print("Wrong model selection metric entered!")
 
+            filename = results_path + '/gbm_models/gbm_model_' + str(n) + '.sav'
+            pickle.dump(best_model_run, open(filename, 'wb'))
 
         self.gbm_model = best_model
-        filename = results_path + '/gbm_model.sav'
+        filename = results_path + '/gbm_models/gbm_model.sav'
         pickle.dump(self.gbm_model, open(filename, 'wb'))
         print("Training GBM Model completed.")
 
     @classmethod
-    def predict(self, X_test, results_path):
-        filename = results_path + '/gbm_model.sav'
+    def predict(self, X_test, results_path, model_name='best'):
+        filename = results_path + '/gbm_models/gbm_model_'+str(model_name)+'.sav'
         loaded_model = pickle.load(open(filename,'rb'))
         return loaded_model.predict(X_test)
 
     @classmethod
-    def record_scores(self, X_test, y_test, metrics, results_path):
+    def record_scores(self, X_test, y_test, metrics, n_runs, results_path):
         models_scores_path = results_path + '/model_scores/'
-        preds = self.predict(X_test, results_path)
+
+        best_rmse = 0
+        best_mae = 0
+        best_r2 = 0
+        best_corr = 0
+        best_model = None
+
+        workbook = xlsxwriter.Workbook(models_scores_path+'gbm_results.xlsx')
+        worksheet = workbook.add_worksheet()
+
+        row, column = 0, 0
+        worksheet.write(row, column, "Model Name")
+
         f = open(models_scores_path+"metric.txt", "a")
-        f.write("GBM Regression\t")
-        if metrics['rmse']:
-            rms = rmse(preds, y_test)
-            f.write("RMSE : " + str(rms) + "\t")
-        if metrics['mae']:
-            me = mae(preds, y_test)
-            f.write("MAE : " + str(me) + "\t")
-        if metrics['r_squared']:
-            rsq = r2(preds, y_test)
-            f.write("R^2 : " + str(rsq) + "\t")
-        if metrics['pearson_correlation']:
-            pcorr = pearson_correlation(preds, y_test)
-            f.write("Pearson Correlation : " + str(pcorr[0]) + "\t")
-        f.write("\n")
+        for n in range(n_runs):
+            model_path = results_path + '/gbm_models/gbm_model_'+str(n)+'.sav'
+            preds = self.predict(X_test, results_path, n)
+            f.write("GBM Model " + str(n)+ "\t")
+            row = n + 1
+            worksheet.write(row, 0, "GBM Model " + str(n)+ "\t")
+
+            column = 0
+
+            if metrics['rmse']:
+                column += 1
+                if n == 0:
+                    worksheet.write(0, column, "RMSE")
+                rmse_sc = rmse(y_test, preds)
+                with open(model_path, 'rb') as model_file:
+                    model = pickle.load(model_file)
+                best_rmse, best_model =  (rmse_sc, model)  if rmse_sc > best_rmse else (best_rmse, best_model)
+                f.write("RMSE : " + str(rmse_sc) + "\t")
+                worksheet.write(row, column, rmse_sc)
+            if metrics['mae']:
+                column += 1
+                if n == 0:
+                    worksheet.write(0, column, "MAE")
+                me = mae(y_test, preds)
+                with open(model_path, 'rb') as model_file:
+                    model = pickle.load(model_file)
+                best_mae, best_model =  (me, model)  if me > best_mae else (best_mae, best_model)
+                f.write("MAE : " + str(me) + "\t")
+                worksheet.write(row, column, me)
+            if metrics['r_squared']:
+                column += 1
+                if n == 0:
+                    worksheet.write(0, column, "R^2")
+                rsq = r2(y_test, preds)
+                with open(model_path, 'rb') as model_file:
+                    model = pickle.load(model_file)
+                best_r2, best_model =  (rsq, model)  if rsq > best_r2 else (best_r2, best_model)
+                f.write("R^2 : " + str(rsq) + "\t")
+                worksheet.write(row, column, rsq)
+            if metrics['pearson_correlation']:
+                column += 1
+                if n == 0:
+                    worksheet.write(0, column, "Pearson Correlation")
+                pcorr, _ = pearson_correlation(y_test, preds)
+                with open(model_path, 'rb') as model_file:
+                    model = pickle.load(model_file)
+                best_corr, best_model =  (pcorr, model)  if pcorr > best_corr else (best_corr, best_model)
+                f.write("Pearson Correlation : " + str(pcorr) + "\t")
+                worksheet.write(row, column, pcorr)
+            f.write("\n")
         f.close()
+
+        filename = results_path + '/gbm_models/gbm_model_best.sav'
+        pickle.dump(best_model, open(filename, 'wb'))
+        workbook.close()

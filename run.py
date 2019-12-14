@@ -67,11 +67,11 @@ if __name__ == "__main__":
 
         if config['regression']['regression_models']['gbm']:
             if config['common_parameters']['train']:
-                gbm = GradientBoostingRegressorModel(X_train, y_train, X_val, y_val, config['regression']['regression_models']['gbm_params'], results_path)
+                gbm = GradientBoostingRegressorModel(X_train, y_train, X_val, y_val, config['regression']['regression_models']['gbm_params'], config['common_parameters']['n_runs'], results_path)
             if config['common_parameters']['predict_new']:
                 gbm = GradientBoostingRegressorModel.predict(X_val, results_path)
             if config['common_parameters']['get_results']:
-                gbm = GradientBoostingRegressorModel.record_scores(X_val, y_val, config['regression']['performance_metrics'], results_path)
+                gbm = GradientBoostingRegressorModel.record_scores(X_val, y_val, config['regression']['performance_metrics'], config['common_parameters']['n_runs'], results_path)
 
         if config['regression']['regression_models']['xgBoost']:
             if config['common_parameters']['train']:

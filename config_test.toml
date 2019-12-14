@@ -16,7 +16,7 @@ n_runs = 5
 
 [regression.regression_models]
 linear_regression = true
-gbm = false
+gbm = true
 xgBoost = false
 
 [regression.performance_metrics]
