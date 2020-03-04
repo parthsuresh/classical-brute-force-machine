@@ -47,9 +47,10 @@ subsample=[0.8]
 model_selection_metric="mae"
 
 [classification.classification_models]
-logistic_regression = false
+logistic_regression = true
 extra_trees = false
-random_forest = true
+random_forest = false
+gbm = true
 
 [classification.performance_metrics]
 accuracy = true
@@ -69,4 +70,14 @@ n_estimators=[10,50,100,250,500,1000]
 min_samples_split=[2,5,10,50,100]
 min_samples_leaf=[1,5,10,25,50,100]
 max_features='sqrt'
+model_selection_metric="accuracy"
+
+[classification.classification_models.gbm_params]
+learning_rate=[0.005,0.01]
+n_estimators=[10,15,20]
+min_samples_split=[500,1000]
+min_samples_leaf=[10,20,30,40,50]
+max_depth=[5,8]
+max_features='sqrt'
+subsample=[0.8]
 model_selection_metric="accuracy"

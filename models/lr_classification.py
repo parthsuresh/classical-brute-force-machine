@@ -2,8 +2,12 @@ import os
 import pickle
 
 from sklearn.linear_model import LogisticRegression
+from sklearn.feature_selection import RFE
 import pandas as pd
+import numpy as np
 import xlsxwriter
+import shap
+import matplotlib.pyplot as plt
 
 from metrics.classification_metrics import f1
 from metrics.classification_metrics import roc
@@ -12,27 +16,40 @@ from metrics.classification_metrics import accuracy
 
 class LogisticRegressionModel():
     def __init__(self, X_train, y_train, n_runs, results_path):
+        self.explainer = None
+        y_train = np.squeeze(np.array(y_train))
         os.mkdir(results_path+'/logistic_models')
         print("Training Logistic Regression Model....")
         for n in range(n_runs):
-            lr_model = LogisticRegression().fit(X_train, y_train)
+            lr_model = LogisticRegression()
+            lr_model.fit(X_train, y_train)
             filename = results_path + '/logistic_models/logistic_model_' + str(n) + '.sav'
             pickle.dump(lr_model, open(filename, 'wb'))
         print("Training Completed.")
+        self.explainer = shap.LinearExplainer(lr_model, X_train, feature_dependence="independent")
 
-    @classmethod
+
     def predict(self, X_test, results_path, model_name='best'):
         filename = results_path + '/logistic_models/logistic_model_'+str(model_name)+'.sav'
         loaded_model = pickle.load(open(filename,'rb'))
         return loaded_model.predict(X_test)
 
-    def feature_importances(results_path):
-        filename = results_path + '/logistic_model.sav'
+    def feature_importances(self, results_path, feature_names):
+        filename = results_path + '/logistic_models/logistic_model.sav'
         loaded_model = pickle.load(open(filename,'rb'))
-        return loaded_model.coef_
+        importances = np.squeeze(loaded_model.coef_)
+        indices = np.argsort(np.abs(importances))
+        features = list(feature_names)
+        plots_path = results_path + '/logistic_plots/'
+        if not os.path.exists(plots_path):
+            os.mkdir(plots_path)
+        f = open(plots_path + "lr_feature_importances.txt", "w")
+        f.write("Feature Importances\n")
+        for i in reversed(indices):
+            f.write(str(features[i]) + " : "  + str(importances[i]) + "\n")
+        f.close()
 
-    @classmethod
-    def record_scores(self, X_test, y_test, n_runs, metrics, results_path):
+    def record_scores(self, X_test, y_test, n_runs, metrics, feature_names, results_path):
         models_scores_path = results_path + '/model_scores/'
 
         best_f1 = 0
@@ -100,6 +117,19 @@ class LogisticRegressionModel():
             f.write("\n")
         f.close()
 
-        filename = results_path + '/logistic_models/logistic_model_best.sav'
+        filename = results_path + '/logistic_models/logistic_model.sav'
         pickle.dump(best_model, open(filename, 'wb'))
+        self.feature_importances(results_path, feature_names.values)
+        shap_values = self.explainer.shap_values(X_test)
+        X_test_array = np.array(X_test)
+        shap.summary_plot(shap_values, X_test, feature_names = feature_names, show=False, plot_type="bar")
+        plt.savefig(results_path + '/logistic_plots/features.png',  bbox_inches='tight')
+        plt.close()
+        shap.summary_plot(shap_values, X_test, feature_names = feature_names, show=False)
+        plt.savefig(results_path + '/logistic_plots/features_summary.png',  bbox_inches='tight')
+        plt.close()
+        vals= np.abs(shap_values).mean(0)
+        feature_importance = pd.DataFrame(list(zip(X_test.columns, vals)), columns=['col_name','feature_importance_vals'])
+        feature_importance.sort_values(by=['feature_importance_vals'], ascending=False,inplace=True)
+        feature_importance.to_csv(index=False, path_or_buf=results_path+"/logistic_plots/feature_importances.csv")
         workbook.close()

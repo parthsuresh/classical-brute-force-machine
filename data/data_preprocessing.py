@@ -19,6 +19,7 @@ def impute_data(X_train, X_val, impute_method, variables, categorical_variables,
     if len(numerical_variables) >= 1:
         numeric_X_train = X_train[numerical_variables]
         numeric_X_val = X_val[numerical_variables]
+
         if impute_method == 'mean':
             imp = SimpleImputer(strategy='mean')
         elif impute_method == 'median':
@@ -31,7 +32,6 @@ def impute_data(X_train, X_val, impute_method, variables, categorical_variables,
         imp.fit(numeric_X_train)
         numeric_X_train_imputed = pd.DataFrame(imp.transform(numeric_X_train), columns = numeric_X_train.columns)
         numeric_X_val_imputed = pd.DataFrame(imp.transform(numeric_X_val), columns = numeric_X_val.columns)
-
 
     if len(categorical_variables) >= 1:
         categorical_X_train = X_train[categorical_variables]
@@ -95,7 +95,6 @@ def process_data(data_path, config, args):
                     config['common_parameters']['categorical_variables'],
                     config['common_parameters']['target_variable'])
 
-
     X_train_conv, y_train_conv = convert_categorical(X_train, y_train, config['common_parameters']['problem_type'], config['common_parameters']['categorical_variables'])
     X_val_conv, y_val_conv = convert_categorical(X_val, y_val, config['common_parameters']['problem_type'], config['common_parameters']['categorical_variables'])
 
@@ -110,4 +109,4 @@ def process_data(data_path, config, args):
     feature_names = X_train.columns
 
     print('Processing Completed.')
-    return np.array(X_train_conv), np.array(X_val_conv), np.squeeze(np.array(y_train_conv)), np.squeeze(np.array(y_val_conv)), feature_names
+    return X_train_conv, X_val_conv, y_train_conv, y_val_conv, feature_names

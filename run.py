@@ -13,6 +13,7 @@ from models.xgboost_regression import XGBoostRegressionModel
 from models.lr_classification import LogisticRegressionModel
 from models.extra_trees import ExtraTreesClassificationModel
 from models.random_forest_classifier import RandomForestClassificationModel
+from models.gbm_classification import GradientBoostingClassificationModel
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
@@ -40,6 +41,8 @@ if __name__ == "__main__":
     processed_data_path = results_path + "/data"
     plots_path = results_path + "/plots"
 
+    if not os.path.exists(args.output_path) and args.output_path != '.':
+        os.mkdir(args.output_path)
     if not os.path.exists(results_path):
         os.mkdir(results_path)
     if not os.path.exists(model_scores_path):
@@ -63,7 +66,7 @@ if __name__ == "__main__":
             if config['common_parameters']['predict_new']:
                 lr = LinearRegressionModel.predict(X_val, results_path)
             if config['common_parameters']['get_results']:
-                lr = LinearRegressionModel.record_scores(X_val, y_val, config['regression']['performance_metrics'], config['common_parameters']['n_runs'], results_path)
+                lr = LinearRegressionModel.record_scores(X_val, y_val, config['regression']['performance_metrics'], config['common_parameters']['n_runs'], feature_names, results_path)
 
         if config['regression']['regression_models']['gbm']:
             if config['common_parameters']['train']:
@@ -71,7 +74,7 @@ if __name__ == "__main__":
             if config['common_parameters']['predict_new']:
                 gbm = GradientBoostingRegressorModel.predict(X_val, results_path)
             if config['common_parameters']['get_results']:
-                gbm = GradientBoostingRegressorModel.record_scores(X_val, y_val, config['regression']['performance_metrics'], config['common_parameters']['n_runs'], results_path)
+                gbm = GradientBoostingRegressorModel.record_scores(X_val, y_val, config['regression']['performance_metrics'], config['common_parameters']['n_runs'], feature_names, results_path)
 
         if config['regression']['regression_models']['xgBoost']:
             if config['common_parameters']['train']:
@@ -87,9 +90,9 @@ if __name__ == "__main__":
             if config['common_parameters']['train']:
                 lr = LogisticRegressionModel(X_train, y_train, config['common_parameters']['n_runs'], results_path)
             if config['common_parameters']['predict_new']:
-                lr = LogisticRegressionModel.predict(X_val, results_path)
+                lr.predict(X_val, results_path)
             if config['common_parameters']['get_results']:
-                lr = LogisticRegressionModel.record_scores(X_val, y_val, config['common_parameters']['n_runs'], config['classification']['performance_metrics'], results_path)
+                lr.record_scores(X_val, y_val, config['common_parameters']['n_runs'], config['classification']['performance_metrics'], feature_names, results_path)
 
         if config['classification']['classification_models']['extra_trees']:
             if config['common_parameters']['train']:
@@ -106,5 +109,15 @@ if __name__ == "__main__":
                 rf = RandomForestClassificationModel.predict(X_val, results_path)
             if config['common_parameters']['get_results']:
                 rf = RandomForestClassificationModel.record_scores(X_val, y_val, config['common_parameters']['n_runs'], config['classification']['performance_metrics'], feature_names, results_path)
+
+        if config['classification']['classification_models']['gbm']:
+            if config['common_parameters']['train']:
+                gbm = GradientBoostingClassificationModel(X_train, y_train, X_val, y_val, config['classification']['classification_models']['gbm_params'], config['common_parameters']['n_runs'], results_path)
+            if config['common_parameters']['predict_new']:
+                gbm.predict(X_val, results_path)
+            if config['common_parameters']['get_results']:
+                gbm.record_scores(X_val, y_val, config['classification']['performance_metrics'], config['common_parameters']['n_runs'], feature_names, results_path)
+
+
     else:
         raise Exception("Incorrect Problem Type Entered")
