@@ -82,7 +82,7 @@ if __name__ == "__main__":
             if config['common_parameters']['predict_new']:
                 xgb = XGBoostRegressionModel.predict(X_val, results_path)
             if config['common_parameters']['get_results']:
-                xgb = XGBoostRegressionModel.record_scores(X_val, y_val, config['regression']['performance_metrics'], results_path)
+                xgb = XGBoostRegressionModel.record_scores(X_val, y_val, config['regression']['performance_metrics'],results_path)
 
     elif config['common_parameters']['problem_type'] == 'classification':
 
@@ -92,7 +92,7 @@ if __name__ == "__main__":
             if config['common_parameters']['predict_new']:
                 lr.predict(X_val, results_path)
             if config['common_parameters']['get_results']:
-                lr.record_scores(X_val, y_val, config['common_parameters']['n_runs'], config['classification']['performance_metrics'], feature_names, results_path)
+                lr.record_scores(X_val, y_val, config['common_parameters']['n_runs'], config['classification']['performance_metrics'],  feature_names,  config['plots']['max_display_features'], results_path)
 
         if config['classification']['classification_models']['extra_trees']:
             if config['common_parameters']['train']:
@@ -116,7 +116,7 @@ if __name__ == "__main__":
             if config['common_parameters']['predict_new']:
                 gbm.predict(X_val, results_path)
             if config['common_parameters']['get_results']:
-                gbm.record_scores(X_val, y_val, config['classification']['performance_metrics'], config['common_parameters']['n_runs'], feature_names, results_path)
+                gbm.record_scores(X_val, y_val, config['classification']['performance_metrics'], config['common_parameters']['n_runs'], config['plots']['max_display_features'], feature_names, results_path)
 
 
     else:

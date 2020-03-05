@@ -87,7 +87,7 @@ class GradientBoostingClassificationModel():
         self.gbm_model = best_model
         filename = results_path + '/gbm_models/gbm_model.sav'
         pickle.dump(self.gbm_model, open(filename, 'wb'))
-        self.explainer = shap.TreeExplainer(best_model, X_train, feature_dependence="independent")
+        self.explainer = shap.TreeExplainer(best_model, X_train)
 
 
 
@@ -123,7 +123,7 @@ class GradientBoostingClassificationModel():
         print("Training GBM Classification Model completed.")
 
 
-    def record_scores(self, X_test, y_test, metrics, n_runs, feature_names, results_path):
+    def record_scores(self, X_test, y_test, metrics, n_runs, max_display_features, feature_names, results_path):
         models_scores_path = results_path + '/model_scores/'
 
         best_f1 = 0
@@ -196,10 +196,10 @@ class GradientBoostingClassificationModel():
         self.feature_importances(results_path, feature_names)
         shap_values = self.explainer.shap_values(X_test)
         X_test_array = np.array(X_test)
-        shap.summary_plot(shap_values, X_test, feature_names = feature_names, show=False, plot_type="bar")
+        shap.summary_plot(shap_values, X_test, feature_names = feature_names, show=False, plot_type="bar", max_display=max_display_features)
         plt.savefig(results_path + '/gbm_class_plots/features_bar.png',  bbox_inches='tight')
         plt.close()
-        shap.summary_plot(shap_values, X_test, feature_names = feature_names, show=False)
+        shap.summary_plot(shap_values, X_test, feature_names = feature_names, show=False,  max_display=max_display_features)
         plt.savefig(results_path + '/gbm_class_plots/features_summary.png',  bbox_inches='tight')
         plt.close()
         vals= np.abs(shap_values).mean(0)

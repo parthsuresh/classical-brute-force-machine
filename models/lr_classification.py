@@ -26,7 +26,7 @@ class LogisticRegressionModel():
             filename = results_path + '/logistic_models/logistic_model_' + str(n) + '.sav'
             pickle.dump(lr_model, open(filename, 'wb'))
         print("Training Completed.")
-        self.explainer = shap.LinearExplainer(lr_model, X_train, feature_dependence="independent")
+        self.explainer = shap.LinearExplainer(lr_model, X_train)
 
 
     def predict(self, X_test, results_path, model_name='best'):
@@ -49,7 +49,7 @@ class LogisticRegressionModel():
             f.write(str(features[i]) + " : "  + str(importances[i]) + "\n")
         f.close()
 
-    def record_scores(self, X_test, y_test, n_runs, metrics, feature_names, results_path):
+    def record_scores(self, X_test, y_test, n_runs, metrics, feature_names, max_display_features, results_path):
         models_scores_path = results_path + '/model_scores/'
 
         best_f1 = 0
@@ -122,10 +122,10 @@ class LogisticRegressionModel():
         self.feature_importances(results_path, feature_names.values)
         shap_values = self.explainer.shap_values(X_test)
         X_test_array = np.array(X_test)
-        shap.summary_plot(shap_values, X_test, feature_names = feature_names, show=False, plot_type="bar")
+        shap.summary_plot(shap_values, X_test, feature_names = feature_names, show=False, plot_type="bar", max_display=max_display_features)
         plt.savefig(results_path + '/logistic_plots/features.png',  bbox_inches='tight')
         plt.close()
-        shap.summary_plot(shap_values, X_test, feature_names = feature_names, show=False)
+        shap.summary_plot(shap_values, X_test, feature_names = feature_names, show=False, max_display=max_display_features)
         plt.savefig(results_path + '/logistic_plots/features_summary.png',  bbox_inches='tight')
         plt.close()
         vals= np.abs(shap_values).mean(0)
