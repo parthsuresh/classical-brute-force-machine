@@ -3,6 +3,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import StandardScaler
 
 
 def data_loader(data_path, header, columns):
@@ -79,6 +80,17 @@ def train_val_split(features, labels, split_fraction=0.75):
     X_train, X_val, y_train, y_val = train_test_split(features, labels, train_size=float(split_fraction))
     return X_train, X_val, y_train, y_val
 
+def standardize(X_train, X_val, std):
+    columns = X_train.columns
+    if not std:
+        return X_train, X_val
+    scaler = StandardScaler()
+    std_X_train_np = scaler.fit_transform(X_train)
+    std_X_val_np = scaler.transform(X_val)
+    std_X_train = pd.DataFrame(std_X_train_np, columns=columns)
+    std_X_val = pd.DataFrame(std_X_val_np, columns=columns)
+    return std_X_train, std_X_val
+
 
 def process_data(data_path, config, args):
     print('Processing Data...')
@@ -98,11 +110,12 @@ def process_data(data_path, config, args):
     X_train_conv, y_train_conv = convert_categorical(X_train, y_train, config['common_parameters']['problem_type'], config['common_parameters']['categorical_variables'])
     X_val_conv, y_val_conv = convert_categorical(X_val, y_val, config['common_parameters']['problem_type'], config['common_parameters']['categorical_variables'])
 
-    transformed_training_data = pd.concat([X_train_conv, y_train_conv], axis=1)
+    std_X_train, std_X_val = standardize(X_train_conv, X_val_conv, config['common_parameters']['standardize'])
+    transformed_training_data = pd.concat([std_X_train, y_train_conv], axis=1)
     training_dataset_numeric_path = args.output_path + '/results/data/training-dataset-numeric.csv'
     transformed_training_data.to_csv(training_dataset_numeric_path, index=False)
 
-    transformed_validation_data = pd.concat([X_val_conv,y_val_conv], axis=1)
+    transformed_validation_data = pd.concat([std_X_val,y_val_conv], axis=1)
     validation_dataset_numeric_path = args.output_path + '/results/data/validation-dataset-numeric.csv'
     transformed_validation_data.to_csv(validation_dataset_numeric_path, index=False)
 

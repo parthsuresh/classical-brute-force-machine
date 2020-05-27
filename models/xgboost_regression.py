@@ -19,7 +19,7 @@ class XGBoostRegressionModel():
         max_depth_list = xgb_params['max_depth']
         colsample_bytree_list = xgb_params['colsample_bytree']
         gamma_list = xgb_params['gamma']
-        alpha_list = xgb_params['gamma']
+        alpha_list = xgb_params['alpha']
         lambda_list = xgb_params['lambda']
         subsample_list = xgb_params['subsample']
         model_selection_metric = xgb_params['model_selection_metric']

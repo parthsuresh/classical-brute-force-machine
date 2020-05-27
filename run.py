@@ -118,6 +118,5 @@ if __name__ == "__main__":
             if config['common_parameters']['get_results']:
                 gbm.record_scores(X_val, y_val, config['classification']['performance_metrics'], config['common_parameters']['n_runs'], config['plots']['max_display_features'], feature_names, results_path)
 
-
     else:
         raise Exception("Incorrect Problem Type Entered")
