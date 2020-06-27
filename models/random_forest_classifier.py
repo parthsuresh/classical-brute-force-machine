@@ -28,7 +28,9 @@ class RandomForestClassificationModel():
         best_roc = 0
         best_auc = 0
         best_acc = 0
+        best_bal_acc = 0
         best_model = None
+        best_model_params = {}
 
         for n in range(n_runs):
 
@@ -36,6 +38,7 @@ class RandomForestClassificationModel():
             best_roc_run = 0
             best_auc_run = 0
             best_acc_run = 0
+            best_bal_acc_run = 0
             best_model_run = None
 
             for n_estimators in n_estimators_list:
@@ -45,25 +48,45 @@ class RandomForestClassificationModel():
                                                                         min_samples_split=min_samples_split,
                                                                         min_samples_leaf=min_samples_leaf,
                                                                         max_features=max_features)
+                            model_parameters = {
+                                'n_estimators':n_estimators,
+                                'min_samples_split':min_samples_split,
+                                'min_samples_leaf':min_samples_leaf,
+                                'max_features':max_features
+                            }
                             ext_estimator.fit(X_train, y_train)
                             preds = ext_estimator.predict(X_val)
 
                             if model_selection_metric == "f1":
-                                f = f1(y_val, preds)
-                                best_f1_run, best_model_run =  (f, ext_estimator)  if f > best_f1_run else (best_f1_run, best_model_run)
-                                best_f1, best_model =  (f, ext_estimator)  if f > best_f1 else (best_f1, best_model)
+                                        f = f1(y_val, preds)
+                                        best_f1_run, best_model_run = (f, gbm_estimator) if f > best_f1_run else (
+                                            best_f1_run, best_model_run)
+                                        best_f1, best_model, best_model_params = (f, gbm_estimator, model_params) if f > best_f1 else (
+                                            best_f1, best_model, best_model_params)
                             elif model_selection_metric == "roc":
                                 r = roc(y_val, preds)
-                                best_roc_run, best_model_run = (r, ext_estimator) if r > best_roc_run else (best_roc_run, best_model_run)
-                                best_roc, best_model = (r, ext_estimator) if r > best_roc else (best_roc, best_model)
+                                best_roc_run, best_model_run = (r, gbm_estimator) if r > best_roc_run else (
+                                    best_roc_run, best_model_run)
+                                best_roc, best_model, best_model_params = (r, gbm_estimator, model_params) if r > best_roc else (
+                                    best_roc, best_model, best_model_params)
                             elif model_selection_metric == "auc":
                                 au = auc(y_val, preds)
-                                best_auc_run, best_model_run = (auc, ext_estimator) if auc > best_auc_run else (best_auc_run, best_model_run)
-                                best_auc, best_model = (auc, ext_estimator) if auc > best_auc else (best_auc, best_model)
+                                best_auc_run, best_model_run = (au, gbm_estimator) if au > best_auc_run else (
+                                    best_auc_run, best_model_run)
+                                best_auc, best_model, best_model_params = (au, gbm_estimator, model_params) if au > best_auc else (
+                                    best_auc, best_model, best_model_params)
                             elif model_selection_metric == "accuracy":
                                 acc = accuracy(preds, y_val)
-                                best_acc_run, best_model_run = (acc, ext_estimator) if acc > best_acc_run else (best_acc_run, best_model_run)
-                                best_acc, best_model = (acc, ext_estimator) if acc > best_acc else (best_acc, best_model)
+                                best_acc_run, best_model_run = (acc, gbm_estimator) if acc > best_acc_run else (
+                                    best_acc_run, best_model_run)
+                                best_acc, best_model, best_model_params = (acc, gbm_estimator, model_params) if acc > best_acc else (
+                                    best_acc, best_model, best_model_params)
+                            elif model_selection_metric == "balanced_accuracy":
+                                bal_acc = balanced_accuracy(preds, y_val)
+                                best_bal_acc_run, best_model_run = (bal_acc, gbm_estimator) if bal_acc > best_bal_acc_run else (
+                                    best_bal_acc_run, best_model_run)
+                                best_bal_acc, best_model, best_model_params = (bal_acc, gbm_estimator, model_params) if bal_acc > best_bal_acc else (
+                                    best_bal_acc, best_model, best_model_params)
                             else:
                                 print("Wrong model selection metric entered!")
 
@@ -73,6 +96,9 @@ class RandomForestClassificationModel():
         self.ext_model = best_model
         filename = results_path + '/random_forest_models/rf_model.sav'
         pickle.dump(self.ext_model, open(filename, 'wb'))
+        f = open(results_path+'/random_forest_models/best_params.txt', 'w')
+        f.write(str(best_model_params))
+        f.close()
         print("Training Random Forest Classification Model completed.")
 
     @classmethod
@@ -114,30 +140,52 @@ class RandomForestClassificationModel():
         f = open(models_scores_path+"metric.txt", "a")
 
         for n in range(n_runs):
-            preds = self.predict(X_test, results_path, model_name=n)
+            model_path = results_path + '/gbm_models/gbm_model_' + str(n) + '.sav'
+            preds = self.predict(X_test, results_path, n)
+            f.write("GBM Model " + str(n) + "\t")
             row = n + 1
-            worksheet.write(row, 0, "Random Forest Model " + str(n)+ "\t")
-            f.write("Random Forest Classification\t")
+            worksheet.write(row, 0, "GBM Model " + str(n) + "\t")
+
             column = 0
+
             if metrics['f1']:
                 column += 1
                 if n == 0:
                     worksheet.write(0, column, "F1")
                 f1_sc = f1(y_test, preds)
-                f.write("F1 score : " + str(f1) + "\t")
+                with open(model_path, 'rb') as model_file:
+                    model = pickle.load(model_file)
+                best_f1, best_model = (f1_sc, model) if f1_sc > best_f1 else (best_f1, best_model)
+                f.write("F1 score : " + str(f1_sc) + "\t")
                 worksheet.write(row, column, f1_sc)
             if metrics['accuracy']:
                 column += 1
                 if n == 0:
                     worksheet.write(0, column, "Accuracy")
-                acc = accuracy(y_test, preds)
+                acc = accuracy( preds, y_test)
+                with open(model_path, 'rb') as model_file:
+                    model = pickle.load(model_file)
+                best_acc, best_model = (acc, model) if acc > best_acc else (best_acc, best_model)
                 f.write("Accuracy : " + str(acc) + "\t")
                 worksheet.write(row, column, acc)
+            if metrics['balanced_accuracy']:
+                column += 1
+                if n == 0:
+                    worksheet.write(0, column, "Balanced Accuracy")
+                bal_acc = balanced_accuracy(preds, y_test)
+                with open(model_path, 'rb') as model_file:
+                    model = pickle.load(model_file)
+                best_bal_acc, best_model = (bal_acc, model) if bal_acc > best_acc else (best_bal_acc, best_model)
+                f.write("Balanced Accuracy : " + str(bal_acc) + "\t")
+                worksheet.write(row, column, bal_acc)
             if metrics['roc']:
                 column += 1
                 if n == 0:
                     worksheet.write(0, column, "ROC")
                 roc_curve = roc(y_test, preds)
+                with open(model_path, 'rb') as model_file:
+                    model = pickle.load(model_file)
+                best_roc, best_model = (roc_curve, model) if roc_curve > best_roc else (best_roc, best_model)
                 f.write("ROC : " + str(roc_curve) + "\t")
                 worksheet.write(row, column, roc_curve)
             if metrics['auc']:
@@ -145,8 +193,11 @@ class RandomForestClassificationModel():
                 if n == 0:
                     worksheet.write(0, column, "AUC")
                 auroc = auc(y_test, preds)
-                f.write("Area under ROC : " + str(auroc) + "\t")
-                worksheet.write(row, column, auroc)
+                with open(model_path, 'rb') as model_file:
+                    model = pickle.load(model_file)
+                best_auc, best_model = (auroc, model) if auroc > best_auc else (best_auc, best_model)
+                f.write("AUC : " + str(auc) + "\t")
+                worksheet.write(row, column, auc)
             f.write("\n")
         f.close()
 

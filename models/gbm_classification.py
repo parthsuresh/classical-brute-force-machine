@@ -228,3 +228,4 @@ class GradientBoostingClassificationModel:
                 worksheet.write(row, column, auc)
             f.write("\n")
         f.close()
+        workbook.close()
