@@ -30,6 +30,7 @@ class GradientBoostingRegressorModel():
         best_rsq = 0
         best_pcorr = 0
         best_model = None
+        best_model_params = {}
 
         for n in range(n_runs):
 
@@ -52,25 +53,34 @@ class GradientBoostingRegressorModel():
                                                                                 max_depth=max_depth,
                                                                                 subsample=subsample,
                                                                                 max_features=max_features)
+                                    model_params = {
+                                        'learning_rate':learning_rate,
+                                        'n_estimators':n_estimators,
+                                        'min_samples_split':min_samples_split,
+                                        'min_samples_leaf':min_samples_leaf,
+                                        'max_depth':max_depth,
+                                        'subsample':subsample,
+                                        'max_features':max_features
+                                    }
                                     gbm_estimator.fit(X_train, y_train)
                                     preds = gbm_estimator.predict(X_val)
 
                                     if model_selection_metric == "mae":
                                         me = mae(preds, y_val)
                                         best_me_run, best_model_run =  (me, gbm_estimator)  if me < best_me_run else (best_me_run, best_model_run)
-                                        best_me, best_model =  (me, gbm_estimator)  if me < best_me else (best_me, best_model)
+                                        best_me, best_model, best_model_params =  (me, gbm_estimator, model_params)  if me < best_me else (best_me, best_model, best_model_params)
                                     elif model_selection_metric == "rmse":
                                         rms = rmse(preds, y_val)
                                         best_rms_run, best_model_run = (rms, gbm_estimator) if rms < best_rms_run else (best_rms_run, best_model_run)
-                                        best_rms, best_model = (rms, gbm_estimator) if rms < best_rms else (best_rms, best_model)
+                                        best_rms, best_model, best_model_params = (rms, gbm_estimator. model_params) if rms < best_rms else (best_rms, best_model, best_model_params)
                                     elif model_selection_metric == "r_squared":
                                         rsq = r2(preds, y_val)
                                         best_rsq_run, best_model_run = (rsq, gbm_estimator) if rsq > best_rsq_run else (best_rsq_run, best_model_run)
-                                        best_rsq, best_model = (rsq, gbm_estimator) if rsq > best_rsq else (best_rsq, best_model)
+                                        best_rsq, best_model, best_model_params = (rsq, gbm_estimator, model_params) if rsq > best_rsq else (best_rsq, best_model, best_model_params)
                                     elif model_selection_metric == "pearson_correlation":
                                         pcorr, _ = pearson_correlation(preds, y_val)
                                         best_pcorr_run, best_model_run = (pcorr, gbm_estimator) if pcorr > best_pcorr_run else (best_pcorr_run, best_model_run)
-                                        best_pcorr, best_model = (pcorr, gbm_estimator) if pcorr > best_pcorr else (best_pcorr, best_model)
+                                        best_pcorr, best_model, best_model_params = (pcorr, gbm_estimator, model_params) if pcorr > best_pcorr else (best_pcorr, best_model, best_model_params)
                                     else:
                                         print("Wrong model selection metric entered!")
 
@@ -80,6 +90,9 @@ class GradientBoostingRegressorModel():
         self.gbm_model = best_model
         filename = results_path + '/gbm_models/gbm_model.sav'
         pickle.dump(self.gbm_model, open(filename, 'wb'))
+        f = open(results_path+'/gbm_models/best_scores.txt', 'w')
+        f.write(str(best_model_params))
+        f.close()      
         print("Training GBM Model completed.")
 
     @classmethod

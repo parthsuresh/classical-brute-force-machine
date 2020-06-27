@@ -37,6 +37,7 @@ class GradientBoostingClassificationModel:
         best_auc = 0
         best_acc = 0
         best_model = None
+        best_model_params = {}
 
         for n in range(n_runs):
 
@@ -45,6 +46,7 @@ class GradientBoostingClassificationModel:
             best_auc_run = 0
             best_acc_run = 0
             best_model_run = None
+            
 
             for learning_rate in learning_rate_list:
                 for n_estimators in n_estimators_list:
@@ -59,6 +61,15 @@ class GradientBoostingClassificationModel:
                                                                                max_depth=max_depth,
                                                                                subsample=subsample,
                                                                                max_features=max_features)
+                                    model_params = {
+                                        'learning_rate':learning_rate,
+                                        'n_estimators':n_estimators,
+                                        'min_samples_split':min_samples_split,
+                                        'min_samples_leaf':min_samples_leaf,
+                                        'max_depth':max_depth,
+                                        'subsample':subsample,
+                                        'max_features':max_features
+                                    }
                                     gbm_estimator.fit(x_train, y_train)
                                     preds = gbm_estimator.predict(x_val)
 
@@ -66,26 +77,26 @@ class GradientBoostingClassificationModel:
                                         f = f1(y_val, preds)
                                         best_f1_run, best_model_run = (f, gbm_estimator) if f > best_f1_run else (
                                             best_f1_run, best_model_run)
-                                        best_f1, best_model = (f, gbm_estimator) if f > best_f1 else (
-                                            best_f1, best_model)
+                                        best_f1, best_model, best_model_params = (f, gbm_estimator, model_params) if f > best_f1 else (
+                                            best_f1, best_model, best_model_params)
                                     elif model_selection_metric == "roc":
                                         r = roc(y_val, preds)
                                         best_roc_run, best_model_run = (r, gbm_estimator) if r > best_roc_run else (
                                             best_roc_run, best_model_run)
-                                        best_roc, best_model = (r, gbm_estimator) if r > best_roc else (
-                                            best_roc, best_model)
+                                        best_roc, best_model, best_model_params = (r, gbm_estimator, model_params) if r > best_roc else (
+                                            best_roc, best_model, best_model_params)
                                     elif model_selection_metric == "auc":
                                         au = auc(y_val, preds)
                                         best_auc_run, best_model_run = (au, gbm_estimator) if au > best_auc_run else (
                                             best_auc_run, best_model_run)
-                                        best_auc, best_model = (au, gbm_estimator) if au > best_auc else (
-                                            best_auc, best_model)
+                                        best_auc, best_model, best_model_params = (au, gbm_estimator, model_params) if au > best_auc else (
+                                            best_auc, best_model, best_model_params)
                                     elif model_selection_metric == "accuracy":
                                         acc = accuracy(preds, y_val)
                                         best_acc_run, best_model_run = (acc, gbm_estimator) if acc > best_acc_run else (
                                             best_acc_run, best_model_run)
-                                        best_acc, best_model = (acc, gbm_estimator) if acc > best_acc else (
-                                            best_acc, best_model)
+                                        best_acc, best_model, best_model_params = (acc, gbm_estimator, model_params) if acc > best_acc else (
+                                            best_acc, best_model, best_model_params)
                                     else:
                                         print("Wrong model selection metric entered!")
 
@@ -95,6 +106,9 @@ class GradientBoostingClassificationModel:
         self.gbm_model = best_model
         filename = results_path + '/gbm_models/gbm_model.sav'
         pickle.dump(self.gbm_model, open(filename, 'wb'))
+        f = open(results_path+'/gbm_models/best_scores.txt', 'w')
+        f.write(str(best_model_params))
+        f.close()
         self.explainer = shap.TreeExplainer(best_model, x_train)
 
     def predict(self, X_test, results_path, model_name='best'):
