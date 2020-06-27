@@ -12,6 +12,7 @@ from metrics.classification_metrics import f1
 from metrics.classification_metrics import roc
 from metrics.classification_metrics import auc
 from metrics.classification_metrics import accuracy
+from metrics.classification_metrics import balanced_accuracy
 
 
 class GradientBoostingClassificationModel:
@@ -36,6 +37,7 @@ class GradientBoostingClassificationModel:
         best_roc = 0
         best_auc = 0
         best_acc = 0
+        best_bal_acc = 0
         best_model = None
         best_model_params = {}
 
@@ -45,6 +47,7 @@ class GradientBoostingClassificationModel:
             best_roc_run = 0
             best_auc_run = 0
             best_acc_run = 0
+            best_bal_acc_run = 0
             best_model_run = None
             
 
@@ -97,6 +100,12 @@ class GradientBoostingClassificationModel:
                                             best_acc_run, best_model_run)
                                         best_acc, best_model, best_model_params = (acc, gbm_estimator, model_params) if acc > best_acc else (
                                             best_acc, best_model, best_model_params)
+                                    elif model_selection_metric == "balanced_accuracy":
+                                        bal_acc = balanced_accuracy(preds, y_val)
+                                        best_bal_acc_run, best_model_run = (bal_acc, gbm_estimator) if bal_acc > best_bal_acc_run else (
+                                            best_bal_acc_run, best_model_run)
+                                        best_bal_acc, best_model, best_model_params = (bal_acc, gbm_estimator, model_params) if bal_acc > best_bal_acc else (
+                                            best_bal_acc, best_model, best_model_params)
                                     else:
                                         print("Wrong model selection metric entered!")
 
@@ -106,7 +115,7 @@ class GradientBoostingClassificationModel:
         self.gbm_model = best_model
         filename = results_path + '/gbm_models/gbm_model.sav'
         pickle.dump(self.gbm_model, open(filename, 'wb'))
-        f = open(results_path+'/gbm_models/best_scores.txt', 'w')
+        f = open(results_path+'/gbm_models/best_params.txt', 'w')
         f.write(str(best_model_params))
         f.close()
         self.explainer = shap.TreeExplainer(best_model, x_train)
@@ -148,6 +157,7 @@ class GradientBoostingClassificationModel:
         best_acc = 0
         best_roc = 0
         best_auc = 0
+        best_bal_acc = 0
         best_model = None
 
         workbook = xlsxwriter.Workbook(models_scores_path + 'gbm_results.xlsx')
@@ -180,12 +190,22 @@ class GradientBoostingClassificationModel:
                 column += 1
                 if n == 0:
                     worksheet.write(0, column, "Accuracy")
-                acc = accuracy(y_test, preds)
+                acc = accuracy( preds, y_test)
                 with open(model_path, 'rb') as model_file:
                     model = pickle.load(model_file)
                 best_acc, best_model = (acc, model) if acc > best_acc else (best_acc, best_model)
                 f.write("Accuracy : " + str(acc) + "\t")
                 worksheet.write(row, column, acc)
+            if metrics['balanced_accuracy']:
+                column += 1
+                if n == 0:
+                    worksheet.write(0, column, "Balanced Accuracy")
+                bal_acc = balanced_accuracy(preds, y_test)
+                with open(model_path, 'rb') as model_file:
+                    model = pickle.load(model_file)
+                best_bal_acc, best_model = (bal_acc, model) if bal_acc > best_acc else (best_bal_acc, best_model)
+                f.write("Balanced Accuracy : " + str(bal_acc) + "\t")
+                worksheet.write(row, column, bal_acc)
             if metrics['roc']:
                 column += 1
                 if n == 0:

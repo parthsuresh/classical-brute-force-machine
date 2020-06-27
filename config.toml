@@ -59,6 +59,7 @@ xgBoost = false
 
 [classification.performance_metrics]
 accuracy = true
+balanced_accuracy = true
 f1 = false
 auc = false #performance measure for binary classification only, leave false otherwise
 roc = false #performance measure for binary classification only, leave false otherwise
@@ -85,7 +86,7 @@ min_samples_leaf=[5,10,20]
 max_depth=[5,10,15,25]
 max_features='sqrt'
 subsample=[0.8]
-model_selection_metric="accuracy"
+model_selection_metric="balanced_accuracy"
 
 [classification.classification_models.xgb_params]
 learning_rate=[0.005,0.1]

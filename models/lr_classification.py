@@ -88,12 +88,22 @@ class LogisticRegressionModel():
                 column += 1
                 if n == 0:
                     worksheet.write(0, column, "Accuracy")
-                acc = accuracy(y_test, preds)
+                acc = accuracy(preds, y_test)
                 with open(model_path, 'rb') as model_file:
                     model = pickle.load(model_file)
                 best_acc, best_model =  (acc, model)  if acc > best_acc else (best_acc, best_model)
                 f.write("Accuracy : " + str(acc) + "\t")
                 worksheet.write(row, column, acc)
+            if metrics['balanced_accuracy']:
+                column += 1
+                if n == 0:
+                    worksheet.write(0, column, "Balanced Accuracy")
+                bal_acc = balanced_accuracy(y_preds, y_true)
+                with open(model_path, 'rb') as model_file:
+                    model = pickle.load(model_file)
+                best_bal_acc, best_model = (bal_acc, model) if bal_acc > best_acc else (best_bal_acc, best_model)
+                f.write("Balanced Accuracy : " + str(bal_acc) + "\t")
+                worksheet.write(row, column, bal_acc)
             if metrics['roc']:
                 column += 1
                 if n == 0:
