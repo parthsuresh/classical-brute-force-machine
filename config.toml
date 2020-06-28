@@ -53,8 +53,8 @@ model_selection_metric="mae"
 [classification.classification_models]
 logistic_regression = false
 extra_trees = false
-random_forest = false
-gbm = true
+random_forest = true
+gbm = false
 xgBoost = false
 
 [classification.performance_metrics]
