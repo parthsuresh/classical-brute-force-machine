@@ -85,7 +85,8 @@ def standardize(X_train, X_val, std):
     if not std:
         return X_train, X_val
     scaler = StandardScaler()
-    std_X_train_np = scaler.fit_transform(X_train)
+    scaler.fit(X_train)
+    std_X_train_np = scaler.transform(X_train)
     std_X_val_np = scaler.transform(X_val)
     std_X_train = pd.DataFrame(std_X_train_np, columns=columns)
     std_X_val = pd.DataFrame(std_X_val_np, columns=columns)
