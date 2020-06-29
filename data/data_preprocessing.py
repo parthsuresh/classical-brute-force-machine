@@ -12,10 +12,9 @@ def data_loader(data_path, header, columns):
     return data
 
 
-def impute_data(X_train, X_val, impute_method, variables, categorical_variables, target_variable):
-    if len(variables) <= 1: raise Exception("Incorrect number of variables in Config File")
+def impute_data(X_train, X_val, impute_method, numerical_variables, target_variable):
     #if len(categorical_variables) == 1: categorical_variables = [categorical_variables]
-    numerical_variables = list(set(variables) - set(categorical_variables) - set([target_variable]))
+    categorical_variables = list(set(X_train.columns) - set(numerical_variables) - set([target_variable]))
 
     if len(numerical_variables) >= 1:
         numeric_X_train = X_train[numerical_variables]
@@ -72,7 +71,7 @@ def convert_categorical(X, y, problem_type, cols_to_transform=[]):
         encoded_y[y.columns[0]] = le.fit_transform(y.iloc[:,0])
     else:
         encoded_y = y
-
+    
     return encoded_X, encoded_y
 
 
@@ -95,8 +94,13 @@ def standardize(X_train, X_val, std):
 
 def process_data(data_path, config, args):
     print('Processing Data...')
+    variables = config['common_parameters']['variables']
+    categorical_variables = config['common_parameters']['categorical_variables']
+    target_variable = config['common_parameters']['target_variable']
+    numerical_variables = list(set(variables) - set(categorical_variables) - set([target_variable]))
     data = data_loader(data_path, config['common_parameters']['has_header'], config['common_parameters']['variables'])
     X, y = split_X_y(data, config['common_parameters']['target_variable'])
+    X, y = convert_categorical(X, y, config['common_parameters']['problem_type'], config['common_parameters']['categorical_variables'])
     X_train, X_val, y_train, y_val = train_val_split(X, y, config['common_parameters']['train_val_split'])
 
     y_train.reset_index(drop=True, inplace=True)
@@ -104,23 +108,22 @@ def process_data(data_path, config, args):
 
     X_train, X_val = impute_data(X_train, X_val,
                     config['common_parameters']['impute_method'],
-                    config['common_parameters']['variables'],
-                    config['common_parameters']['categorical_variables'],
+                    numerical_variables,
                     config['common_parameters']['target_variable'])
 
-    X_train_conv, y_train_conv = convert_categorical(X_train, y_train, config['common_parameters']['problem_type'], config['common_parameters']['categorical_variables'])
-    X_val_conv, y_val_conv = convert_categorical(X_val, y_val, config['common_parameters']['problem_type'], config['common_parameters']['categorical_variables'])
+    # X_train_conv, y_train_conv = convert_categorical(X_train, y_train, config['common_parameters']['problem_type'], config['common_parameters']['categorical_variables'])
+    # X_val_conv, y_val_conv = convert_categorical(X_val, y_val, config['common_parameters']['problem_type'], config['common_parameters']['categorical_variables'])
 
-    std_X_train, std_X_val = standardize(X_train_conv, X_val_conv, config['common_parameters']['standardize'])
-    transformed_training_data = pd.concat([std_X_train, y_train_conv], axis=1)
+    std_X_train, std_X_val = standardize(X_train, X_val, config['common_parameters']['standardize'])
+    transformed_training_data = pd.concat([std_X_train, y_train], axis=1)
     training_dataset_numeric_path = args.output_path + '/results/data/training-dataset-numeric.csv'
     transformed_training_data.to_csv(training_dataset_numeric_path, index=False)
 
-    transformed_validation_data = pd.concat([std_X_val,y_val_conv], axis=1)
+    transformed_validation_data = pd.concat([std_X_val,y_val], axis=1)
     validation_dataset_numeric_path = args.output_path + '/results/data/validation-dataset-numeric.csv'
     transformed_validation_data.to_csv(validation_dataset_numeric_path, index=False)
 
     feature_names = X_train.columns
 
     print('Processing Completed.')
-    return X_train_conv, X_val_conv, y_train_conv, y_val_conv, feature_names
+    return std_X_train, std_X_val, y_train, y_val, feature_names
