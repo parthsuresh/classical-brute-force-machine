@@ -14,7 +14,7 @@ def data_loader(data_path, header, columns):
 
 def impute_data(X_train, X_val, impute_method, variables, categorical_variables, target_variable):
     if len(variables) <= 1: raise Exception("Incorrect number of variables in Config File")
-    if len(categorical_variables) == 1: categorical_variables = [categorical_variables]
+    #if len(categorical_variables) == 1: categorical_variables = [categorical_variables]
     numerical_variables = list(set(variables) - set(categorical_variables) - set([target_variable]))
 
     if len(numerical_variables) >= 1:
